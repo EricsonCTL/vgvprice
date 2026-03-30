@@ -18,7 +18,9 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-top:60px}
+body{position:relative;font-family:'Segoe UI',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-top:60px}
+
+.hero-watermark{position:absolute;right:3%;bottom:-10px;height:140px;width:auto;opacity:.06;pointer-events:none;filter:brightness(0) invert(1);}
 
 /* ── NAV ── */
 nav{background:var(--forest-d);position:fixed;top:0;left:0;right:0;z-index:1000;box-shadow:0 2px 16px rgba(0,0,0,.25)}
@@ -612,6 +614,7 @@ table.main tbody tr:hover td{background:var(--forest-xl)}
 
 <!-- HERO dinâmico – conteúdo atualizado por showPage() -->
 <div class="hero" id="hero-block">
+  <img src="vgvprice-logo.png" alt="" class="hero-watermark" aria-hidden="true">
   <div class="hero-inner">
     <h1 id="hero-title"><strong>Quintas da Mata</strong></h1>
     <!-- Subtítulo – visível só no hero expandido (visão geral) -->
