@@ -7,30 +7,29 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* ── Paleta harmonizada com index.html + logo VGVPrice ── */
-      --forest:    #2d5a1b;
-      --forest-d:  #1e3d12;
-      --forest-l:  #4a8a2e;
-      --forest-xl: #e8f2e1;
-      --gold:      #8a6a1a;
-      --gold-l:    #c8a84b;
-      --gold-xl:   #f5eed8;
-      --ink:       #1a1f16;
-      --ink2:      #3d4a35;
-      --ink3:      #7a8a72;
-      --paper:     #f7f5f0;
-      --paper2:    #edeae2;
-      --paper3:    #e2ddd2;
+      /* ── Paleta azul inspirada no login de index.html ── */
+      --forest:    #1649a5;
+      --forest-d:  #0f3572;
+      --forest-l:  #3f6fbf;
+      --forest-xl: #e8effb;
+      --gold:      #4d79c8;
+      --gold-l:    #7ea0e0;
+      --gold-xl:   #e8effd;
+      --ink:       #111f3f;
+      --ink2:      #2d4d8a;
+      --ink3:      #5f7bb4;
+      --paper:     #f4f7ff;
+      --paper2:    #e8eefc;
+      --paper3:    #dfe6f6;
       --white:     #ffffff;
-      --alert:     #b83232;
+      --alert:     #c63535;
 
-      /* Azul VGVPrice (da logo) */
       --vgv-blue:  #15408c;
       --vgv-green: #22a05a;
 
-      --border: rgba(45,90,27,.12);
-      --shadow: 0 4px 20px rgba(30,61,18,.10);
-      --shadow-lg: 0 12px 40px rgba(30,61,18,.14);
+      --border: rgba(21,64,140,.12);
+      --shadow: 0 4px 20px rgba(21,64,140,.08);
+      --shadow-lg: 0 12px 40px rgba(21,64,140,.12);
       --r: 16px;
     }
 
@@ -150,7 +149,7 @@
        HERO
     ════════════════════════════════ */
     .hero {
-      background: linear-gradient(135deg, var(--forest-d) 0%, var(--forest) 60%, var(--forest-l) 100%);
+      background: linear-gradient(135deg, var(--forest-d) 0%, var(--forest) 55%, var(--forest-l) 100%);
       color: #fff;
       padding: 3rem 1.5rem 2.5rem;
       position: relative;
@@ -204,7 +203,7 @@
       font-weight: 700;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--gold-l);
+      color: var(--forest-l);
       margin-bottom: 14px;
     }
 
@@ -338,7 +337,7 @@
     }
 
     .card-head.quintas { background: linear-gradient(120deg, var(--forest-d), var(--forest)); }
-    .card-head.other   { background: linear-gradient(120deg, #2a3a28, #3d5436); }
+    .card-head.other   { background: linear-gradient(120deg, #2a4c78, #3d6eaa); }
 
     .card-name {
       font-size: .95rem;
@@ -359,8 +358,8 @@
     }
 
     .badge-alta  { background: rgba(184,50,50,.25);  color: #ffaaaa; }
-    .badge-media { background: rgba(200,168,75,.25); color: var(--gold-l); }
-    .badge-baixa { background: rgba(74,138,46,.28);  color: #8de07a; }
+    .badge-media { background: rgba(90,123,180,.22); color: var(--forest-l); }
+    .badge-baixa { background: rgba(65,100,170,.18);  color: #8bb4f2; }
 
     /* Body do card */
     .card-body {
@@ -455,8 +454,8 @@
       flex-shrink: 0;
     }
 
-    .reaj-dot.ok   { background: #4a8a2e; }
-    .reaj-dot.warn { background: var(--gold-l); }
+    .reaj-dot.ok   { background: var(--forest-l); }
+    .reaj-dot.warn { background: var(--gold); }
     .reaj-dot.late { background: var(--alert); }
 
     /* Footer do card */
@@ -484,7 +483,7 @@
     .btn-ver:hover {
       background: var(--forest-d);
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(30,61,18,.22);
+      box-shadow: 0 6px 18px rgba(21,64,140,.22);
     }
 
     .btn-ver.disabled {
