@@ -510,24 +510,6 @@ body {
 
 .site-footer strong { color: var(--forest); }
 
-/* ── MOBILE BOTTOM ACTIONS ── */
-.mobile-actions {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255,255,255,.97);
-  backdrop-filter: blur(12px);
-  padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 24px rgba(0,0,0,.08);
-  z-index: 200;
-  border-top: 1px solid var(--paper2);
-  gap: .6rem;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .btn-back-icon {
   display: inline-flex;
   align-items: center;
@@ -549,22 +531,78 @@ body {
   transform: translateX(-2px);
 }
 
-.btn-pdf-mobile {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  padding: .65rem 1.4rem;
-  border-radius: 50px;
+
+
+/* ── FAB BUTTONS (floating action buttons) ── */
+.fab-group {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  z-index: 999;
+}
+
+.fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   border: none;
   cursor: pointer;
-  background: var(--gold-l);
-  color: var(--forest-d);
-  box-shadow: 0 2px 10px rgba(200,168,75,.3);
-  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.22);
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, opacity .18s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.fab:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 8px 28px rgba(0,0,0,.28);
+}
+
+.fab:active {
+  transform: scale(.94);
+  box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+
+.fab-pdf {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+}
+
+.fab-share {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+}
+
+.fab svg { flex-shrink: 0; }
+
+/* Toast */
+.fab-toast {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1.75rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: .55rem 1.1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.22);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 1000;
   white-space: nowrap;
+  max-width: calc(100vw - 3.5rem);
+}
+
+.fab-toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── PRINT ── */
@@ -574,7 +612,7 @@ body {
 }
 @media print {
   html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
-  .header, .mobile-actions, .hero-banner, .obs-card, .site-footer { display: none !important; }
+  .header, .fab-group, .fab-toast, .hero-banner, .obs-card, .site-footer { display: none !important; }
   .main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; width: 100% !important; }
   .table-card { box-shadow: none; border-radius: 0; border: none; margin: 0; width: 100%; }
   .table-card-header { padding: .4rem .5rem; }
@@ -621,7 +659,6 @@ body {
   .logo-sep     { display: none; }
   .header-center { display: none; }
   .header-actions { display: none; }
-  .mobile-actions { display: flex; }
   body { padding-bottom: 80px; }
   .hero-banner { padding: 1.2rem 1rem 1rem; }
   .hero-left h1 { font-size: 1.3rem; }
@@ -670,8 +707,8 @@ body {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         Voltar
       </a>
-      <button class="btn btn-pdf" onclick="window.print()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <button class="btn btn-pdf" id="btn-gerar-pdf-desktop">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="12" y2="18"/><polyline points="9 16 12 19 15 16"/></svg>
         Exportar PDF
       </button>
     </div>
@@ -757,16 +794,34 @@ body {
   Tabela de Preços · Quintas da Mata · Uso exclusivo interno &nbsp;·&nbsp; <strong>Desenvolvido por Ericson Tenório</strong> &nbsp;·&nbsp; Gerado em Março 2026
 </footer>
 
-<!-- MOBILE BOTTOM ACTIONS -->
-<div class="mobile-actions">
-  <a href="quintas.html" class="btn-back-icon" aria-label="Voltar">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-  </a>
-  <button class="btn-pdf-mobile" onclick="window.print()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    Exportar PDF
+<!-- FAB GROUP -->
+<div class="fab-group" role="group" aria-label="Ações rápidas">
+
+  <!-- BOTÃO 1: GERAR PDF (dinâmico da tela atual) -->
+  <button class="fab fab-pdf" id="btn-gerar-pdf" aria-label="Gerar PDF">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="12" y1="13" x2="12" y2="18"/>
+      <polyline points="9 16 12 19 15 16"/>
+    </svg>
   </button>
+
+  <!-- BOTÃO 2: COMPARTILHAR PDF FIXO DO SERVIDOR -->
+  <button class="fab fab-share" id="btn-compartilhar" aria-label="Compartilhar PDF">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  </button>
+
 </div>
+
+<!-- TOAST -->
+<div class="fab-toast" id="fab-toast"></div>
 
 <script>
 const TABELA_ROWS = [{"quadra":"QD-10","lote":1,"m2":252.0,"valor":78120.0,"entrada":7812.0,"p12":5859.0,"p24":2929.5,"p36":1953.0,"p36i":1786.33,"p36i_inter":2000,"p60":1171.8,"p60i":1005.13,"p60i_inter":2000},{"quadra":"QD-10","lote":21,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-10","lote":23,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-10","lote":33,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-11","lote":1,"m2":252.0,"valor":78120.0,"entrada":7812.0,"p12":5859.0,"p24":2929.5,"p36":1953.0,"p36i":1786.33,"p36i_inter":2000,"p60":1171.8,"p60i":1005.13,"p60i_inter":2000},{"quadra":"QD-11","lote":4,"m2":252.0,"valor":78120.0,"entrada":7812.0,"p12":5859.0,"p24":2929.5,"p36":1953.0,"p36i":1786.33,"p36i_inter":2000,"p60":1171.8,"p60i":1005.13,"p60i_inter":2000},{"quadra":"QD-11","lote":37,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-11","lote":38,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-11","lote":42,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-11","lote":44,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-11","lote":47,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-12","lote":1,"m2":268.0,"valor":101425.62,"entrada":10142.56,"p12":7606.92,"p24":3803.46,"p36":2535.64,"p36i":2368.97,"p36i_inter":2000,"p60":1521.38,"p60i":1354.72,"p60i_inter":2000},{"quadra":"QD-12","lote":2,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-12","lote":3,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-12","lote":4,"m2":213.96,"valor":80973.97,"entrada":8097.4,"p12":6073.05,"p24":3036.52,"p36":2024.35,"p36i":1857.68,"p36i_inter":2000,"p60":1214.61,"p60i":1047.94,"p60i_inter":2000},{"quadra":"QD-12","lote":5,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-12","lote":6,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-12","lote":7,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-12","lote":8,"m2":339.5,"valor":128485.05,"entrada":12848.51,"p12":9636.38,"p24":4818.19,"p36":3212.13,"p36i":3045.46,"p36i_inter":2000,"p60":1927.28,"p60i":1760.61,"p60i_inter":2000},{"quadra":"QD-13","lote":11,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-13","lote":12,"m2":240.0,"valor":87655.24,"entrada":8765.52,"p12":6574.14,"p24":3287.07,"p36":2191.38,"p36i":2024.71,"p36i_inter":2000,"p60":1314.83,"p60i":1148.16,"p60i_inter":2000},{"quadra":"QD-13","lote":13,"m2":356.5,"valor":130204.55,"entrada":13020.46,"p12":9765.34,"p24":4882.67,"p36":3255.11,"p36i":3088.45,"p36i_inter":2000,"p60":1953.07,"p60i":1786.4,"p60i_inter":2000},{"quadra":"QD-13","lote":14,"m2":206.67,"valor":75482.12,"entrada":7548.21,"p12":5661.16,"p24":2830.58,"p36":1887.05,"p36i":1720.39,"p36i_inter":2000,"p60":1132.23,"p60i":965.57,"p60i_inter":2000},{"quadra":"QD-14","lote":1,"m2":240.0,"valor":87655.24,"entrada":8765.52,"p12":6574.14,"p24":3287.07,"p36":2191.38,"p36i":2024.71,"p36i_inter":2000,"p60":1314.83,"p60i":1148.16,"p60i_inter":2000},{"quadra":"QD-14","lote":2,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":3,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":4,"m2":240.0,"valor":87655.24,"entrada":8765.52,"p12":6574.14,"p24":3287.07,"p36":2191.38,"p36i":2024.71,"p36i_inter":2000,"p60":1314.83,"p60i":1148.16,"p60i_inter":2000},{"quadra":"QD-14","lote":5,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":6,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":7,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":8,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":14,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":15,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":16,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-14","lote":17,"m2":240.0,"valor":87655.24,"entrada":8765.52,"p12":6574.14,"p24":3287.07,"p36":2191.38,"p36i":2024.71,"p36i_inter":2000,"p60":1314.83,"p60i":1148.16,"p60i_inter":2000},{"quadra":"QD-14","lote":18,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":21,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":22,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":23,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":28,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":29,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-14","lote":30,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-15","lote":1,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000},{"quadra":"QD-15","lote":2,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-15","lote":3,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-15","lote":4,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000},{"quadra":"QD-15","lote":19,"m2":327.6,"valor":98280.0,"entrada":9828.0,"p12":7371.0,"p24":3685.5,"p36":2457.0,"p36i":2290.33,"p36i_inter":2000,"p60":1474.2,"p60i":1307.53,"p60i_inter":2000},{"quadra":"QD-15","lote":20,"m2":490.8,"valor":147240.0,"entrada":14724.0,"p12":11043.0,"p24":5521.5,"p36":3681.0,"p36i":3514.33,"p36i_inter":2000,"p60":2208.6,"p60i":2041.93,"p60i_inter":2000},{"quadra":"QD-17","lote":1,"m2":184.42,"valor":58092.3,"entrada":5809.23,"p12":4356.92,"p24":2178.46,"p36":1452.31,"p36i":1285.64,"p36i_inter":2000,"p60":871.38,"p60i":704.72,"p60i_inter":2000},{"quadra":"QD-17","lote":2,"m2":153.2,"valor":49024.0,"entrada":4902.4,"p12":3676.8,"p24":1838.4,"p36":1225.6,"p36i":1058.93,"p36i_inter":2000,"p60":735.36,"p60i":568.69,"p60i_inter":2000},{"quadra":"QD-17","lote":3,"m2":171.2,"valor":53928.0,"entrada":5392.8,"p12":4044.6,"p24":2022.3,"p36":1348.2,"p36i":1181.53,"p36i_inter":2000,"p60":808.92,"p60i":642.25,"p60i_inter":2000},{"quadra":"QD-17","lote":4,"m2":278.1,"valor":84820.5,"entrada":8482.05,"p12":6361.54,"p24":3180.77,"p36":2120.51,"p36i":1953.85,"p36i_inter":2000,"p60":1272.31,"p60i":1105.64,"p60i_inter":2000},{"quadra":"QD-17","lote":11,"m2":304.5,"valor":92872.5,"entrada":9287.25,"p12":6965.44,"p24":3482.72,"p36":2321.81,"p36i":2155.15,"p36i_inter":2000,"p60":1393.09,"p60i":1226.42,"p60i_inter":2000},{"quadra":"QD-17","lote":12,"m2":342.25,"valor":102675.0,"entrada":10267.5,"p12":7700.62,"p24":3850.31,"p36":2566.88,"p36i":2400.21,"p36i_inter":2000,"p60":1540.12,"p60i":1373.46,"p60i_inter":2000},{"quadra":"QD-17","lote":18,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-18","lote":1,"m2":248.4,"valor":90723.17,"entrada":9072.32,"p12":6804.24,"p24":3402.12,"p36":2268.08,"p36i":2101.41,"p36i_inter":2000,"p60":1360.85,"p60i":1194.18,"p60i_inter":2000},{"quadra":"QD-18","lote":2,"m2":164.4,"valor":60043.84,"entrada":6004.38,"p12":4503.29,"p24":2251.64,"p36":1501.1,"p36i":1334.43,"p36i_inter":2000,"p60":900.66,"p60i":733.99,"p60i_inter":2000},{"quadra":"QD-18","lote":3,"m2":163.4,"valor":59678.61,"entrada":5967.86,"p12":4475.9,"p24":2237.95,"p36":1491.97,"p36i":1325.3,"p36i_inter":2000,"p60":895.18,"p60i":728.51,"p60i_inter":2000},{"quadra":"QD-18","lote":4,"m2":162.4,"valor":59313.38,"entrada":5931.34,"p12":4448.5,"p24":2224.25,"p36":1482.83,"p36i":1316.17,"p36i_inter":2000,"p60":889.7,"p60i":723.03,"p60i_inter":2000},{"quadra":"QD-18","lote":5,"m2":314.95,"valor":115029.23,"entrada":11502.92,"p12":8627.19,"p24":4313.6,"p36":2875.73,"p36i":2709.06,"p36i_inter":2000,"p60":1725.44,"p60i":1558.77,"p60i_inter":2000},{"quadra":"QD-18","lote":6,"m2":252.8,"valor":92330.18,"entrada":9233.02,"p12":6924.76,"p24":3462.38,"p36":2308.25,"p36i":2141.59,"p36i_inter":2000,"p60":1384.95,"p60i":1218.29,"p60i_inter":2000},{"quadra":"QD-18","lote":7,"m2":251.8,"valor":91964.95,"entrada":9196.5,"p12":6897.37,"p24":3448.69,"p36":2299.12,"p36i":2132.46,"p36i_inter":2000,"p60":1379.47,"p60i":1212.81,"p60i_inter":2000},{"quadra":"QD-18","lote":8,"m2":247.6,"valor":90430.98,"entrada":9043.1,"p12":6782.32,"p24":3391.16,"p36":2260.77,"p36i":2094.11,"p36i_inter":2000,"p60":1356.46,"p60i":1189.8,"p60i_inter":2000},{"quadra":"QD-18","lote":9,"m2":235.0,"valor":85829.09,"entrada":8582.91,"p12":6437.18,"p24":3218.59,"p36":2145.73,"p36i":1979.06,"p36i_inter":2000,"p60":1287.44,"p60i":1120.77,"p60i_inter":2000},{"quadra":"QD-18","lote":10,"m2":210.8,"valor":76990.52,"entrada":7699.05,"p12":5774.29,"p24":2887.14,"p36":1924.76,"p36i":1758.1,"p36i_inter":2000,"p60":1154.86,"p60i":988.19,"p60i_inter":2000},{"quadra":"QD-18","lote":11,"m2":319.1,"valor":116544.94,"entrada":11654.49,"p12":8740.87,"p24":4370.44,"p36":2913.62,"p36i":2746.96,"p36i_inter":2000,"p60":1748.17,"p60i":1581.51,"p60i_inter":2000},{"quadra":"QD-18","lote":12,"m2":275.5,"valor":104264.01,"entrada":10426.4,"p12":7819.8,"p24":3909.9,"p36":2606.6,"p36i":2439.93,"p36i_inter":2000,"p60":1563.96,"p60i":1397.29,"p60i_inter":2000},{"quadra":"QD-18","lote":13,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":14,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":15,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":16,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":17,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":18,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-18","lote":19,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":1,"m2":246.0,"valor":89846.62,"entrada":8984.66,"p12":6738.5,"p24":3369.25,"p36":2246.17,"p36i":2079.5,"p36i_inter":2000,"p60":1347.7,"p60i":1181.03,"p60i_inter":2000},{"quadra":"QD-19","lote":2,"m2":162.8,"valor":59459.48,"entrada":5945.95,"p12":4459.46,"p24":2229.73,"p36":1486.49,"p36i":1319.82,"p36i_inter":2000,"p60":891.89,"p60i":725.23,"p60i_inter":2000},{"quadra":"QD-19","lote":3,"m2":162.0,"valor":59167.28,"entrada":5916.73,"p12":4437.55,"p24":2218.77,"p36":1479.18,"p36i":1312.52,"p36i_inter":2000,"p60":887.51,"p60i":720.84,"p60i_inter":2000},{"quadra":"QD-19","lote":4,"m2":241.2,"valor":88093.51,"entrada":8809.35,"p12":6607.01,"p24":3303.51,"p36":2202.34,"p36i":2035.67,"p36i_inter":2000,"p60":1321.4,"p60i":1154.74,"p60i_inter":2000},{"quadra":"QD-19","lote":5,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":6,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":7,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":8,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":9,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":10,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":11,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":12,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":13,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-19","lote":14,"m2":224.7,"valor":82067.21,"entrada":8206.72,"p12":6155.04,"p24":3077.52,"p36":2051.68,"p36i":1885.01,"p36i_inter":2000,"p60":1231.01,"p60i":1064.34,"p60i_inter":2000},{"quadra":"QD-19","lote":15,"m2":206.8,"valor":75529.59,"entrada":7552.96,"p12":5664.72,"p24":2832.36,"p36":1888.24,"p36i":1721.57,"p36i_inter":2000,"p60":1132.94,"p60i":966.28,"p60i_inter":2000},{"quadra":"QD-19","lote":16,"m2":396.5,"valor":144813.76,"entrada":14481.38,"p12":10861.03,"p24":5430.52,"p36":3620.34,"p36i":3453.68,"p36i_inter":2000,"p60":2172.21,"p60i":2005.54,"p60i_inter":2000},{"quadra":"QD-19","lote":17,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":18,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":19,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":20,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":21,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":22,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":23,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":24,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":25,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":26,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-19","lote":27,"m2":160.0,"valor":60552.61,"entrada":6055.26,"p12":4541.45,"p24":2270.72,"p36":1513.82,"p36i":1347.15,"p36i_inter":2000,"p60":908.29,"p60i":741.62,"p60i_inter":2000},{"quadra":"QD-20","lote":5,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":6,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":7,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":8,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":9,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":10,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":11,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":12,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":13,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":14,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-20","lote":15,"m2":160.0,"valor":58436.82,"entrada":5843.68,"p12":4382.76,"p24":2191.38,"p36":1460.92,"p36i":1294.25,"p36i_inter":2000,"p60":876.55,"p60i":709.89,"p60i_inter":2000},{"quadra":"QD-25","lote":15,"m2":175.6,"valor":55314.0,"entrada":5531.4,"p12":4148.55,"p24":2074.28,"p36":1382.85,"p36i":1216.18,"p36i_inter":2000,"p60":829.71,"p60i":663.04,"p60i_inter":2000},{"quadra":"QD-25","lote":16,"m2":164.8,"valor":51912.0,"entrada":5191.2,"p12":3893.4,"p24":1946.7,"p36":1297.8,"p36i":1131.13,"p36i_inter":2000,"p60":778.68,"p60i":612.01,"p60i_inter":2000},{"quadra":"QD-25","lote":17,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-25","lote":20,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-28","lote":1,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000},{"quadra":"QD-28","lote":2,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-28","lote":3,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-28","lote":4,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000},{"quadra":"QD-29","lote":1,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000},{"quadra":"QD-29","lote":2,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-29","lote":3,"m2":160.0,"valor":51200.0,"entrada":5120.0,"p12":3840.0,"p24":1920.0,"p36":1280.0,"p36i":1113.33,"p36i_inter":2000,"p60":768.0,"p60i":601.33,"p60i_inter":2000},{"quadra":"QD-29","lote":4,"m2":240.0,"valor":74400.0,"entrada":7440.0,"p12":5580.0,"p24":2790.0,"p36":1860.0,"p36i":1693.33,"p36i_inter":2000,"p60":1116.0,"p60i":949.33,"p60i_inter":2000}];
@@ -808,6 +863,67 @@ function buildRows() {
 }
 
 buildRows();
+
+/* ── FAB LOGIC ── */
+const PDF_FIXO_URL = encodeURI(location.origin + location.pathname.replace(/[^/]*$/, '') + 'Tabela de Preços · Quintas da Mata.pdf');
+const SHARE_TEXT = `Segue a tabela atualizada do empreendimento Quintas das Matas.\n\nPara reservas, confirme a disponibilidade do lote, bem como a vigência dos valores e condições, sujeitos a alterações sem aviso prévio.\n\nFico à disposição.`;
+
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('fab-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+/* BOTÃO PDF — gera da tela atual */
+function gerarPDF() {
+  showToast('⏳ Gerando PDF…', 5000);
+  setTimeout(() => {
+    window.print();
+    showToast('✅ PDF gerado com sucesso!');
+  }, 200);
+}
+
+/* BOTÃO COMPARTILHAR — usa arquivo fixo do servidor */
+async function compartilhar() {
+  const shareData = {
+    title: 'Tabela de Preços · Quintas da Mata',
+    text: SHARE_TEXT,
+    url: PDF_FIXO_URL
+  };
+  if (navigator.share && navigator.canShare && navigator.canShare({ url: PDF_FIXO_URL })) {
+    try {
+      await navigator.share(shareData);
+      showToast('✅ Compartilhado!');
+    } catch (e) {
+      if (e.name !== 'AbortError') fallbackCopy();
+    }
+  } else {
+    fallbackCopy();
+  }
+}
+
+function fallbackCopy() {
+  const texto = SHARE_TEXT + '\n\n' + PDF_FIXO_URL;
+  navigator.clipboard.writeText(texto).then(() => {
+    showToast('📋 Link copiado para a área de transferência!');
+  }).catch(() => {
+    /* último fallback: execCommand */
+    const el = document.createElement('textarea');
+    el.value = texto;
+    el.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('📋 Link copiado!');
+  });
+}
+
+document.getElementById('btn-gerar-pdf').addEventListener('click', gerarPDF);
+document.getElementById('btn-gerar-pdf-desktop').addEventListener('click', gerarPDF);
+document.getElementById('btn-compartilhar').addEventListener('click', compartilhar);
 </script>
 </body>
 </html>
