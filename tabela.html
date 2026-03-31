@@ -568,34 +568,46 @@ body {
 }
 
 /* ── PRINT ── */
+@page {
+  size: A4 landscape;
+  margin: 8mm 8mm 8mm 8mm;
+}
 @media print {
-  .header, .mobile-actions, .hero-banner { display: none !important; }
-  body { padding-top: 0 !important; background: #fff; }
+  html, body { margin: 0 !important; padding: 0 !important; }
+  .header, .mobile-actions, .hero-banner, .obs-card, .site-footer { display: none !important; }
+  body { background: #fff; }
+  .main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
   .scroll-wrap { overflow: visible !important; }
-  .tp-table { min-width: unset; font-size: 8px; }
+  .tp-table { min-width: unset; font-size: 7.5px; width: 100%; }
+  .tp-table thead tr.tp-th-top th { font-size: 7px; padding: .35rem .4rem; }
+  .tp-table thead tr.tp-th-sub th  { font-size: 6.5px; padding: .3rem .4rem; }
+  .tp-table tbody td { padding: .35rem .4rem; }
   .tp-table th.sticky-col, .tp-table td.sticky-col,
   .tp-table th.sticky-col2, .tp-table td.sticky-col2 { position: static !important; }
-  .table-card { box-shadow: none; border-radius: 0; border: none; }
+  .table-card { box-shadow: none; border-radius: 0; border: none; margin: 0; }
+  .table-card-header { padding: .4rem .6rem; }
+  .table-card-title { font-size: .8rem; }
+  .table-card-meta  { font-size: 10px; }
   .print-header {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: .75rem 0 .6rem;
+    padding: 0 0 .5rem;
     border-bottom: 2px solid #2d5a1b;
-    margin-bottom: .75rem;
+    margin-bottom: .5rem;
   }
-  .print-header .ph-quintas { height: 48px; width: auto; filter: none; }
-  .print-header .ph-lancar  { height: 32px; width: auto; filter: none; }
+  .print-header .ph-quintas { height: 40px; width: auto; filter: none; }
+  .print-header .ph-lancar  { height: 28px; width: auto; filter: none; }
   .print-header .ph-title {
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #1a3a0f;
     line-height: 1.4;
   }
   .print-header .ph-title span {
     display: block;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 400;
     color: #7a8a72;
   }
