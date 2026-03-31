@@ -865,7 +865,8 @@ function buildRows() {
 buildRows();
 
 /* ── FAB LOGIC ── */
-const PDF_FIXO_URL = encodeURI(location.origin + location.pathname.replace(/[^/]*$/, '') + 'Tabela de Preços · Quintas da Mata.pdf');
+const PDF_NOME = 'Tabela de Preços · Quintas da Mata.pdf';
+const PDF_FIXO_URL = location.origin + location.pathname.replace(/[^/]*$/, '') + encodeURIComponent(PDF_NOME);
 const SHARE_TEXT = `Segue a tabela atualizada do empreendimento Quintas das Matas.\n\nPara reservas, confirme a disponibilidade do lote, bem como a vigência dos valores e condições, sujeitos a alterações sem aviso prévio.\n\nFico à disposição.`;
 
 function showToast(msg, duration = 2800) {
@@ -885,23 +886,46 @@ function gerarPDF() {
   }, 200);
 }
 
-/* BOTÃO COMPARTILHAR — usa arquivo fixo do servidor */
+/* BOTÃO COMPARTILHAR — envia o PDF fixo do servidor como arquivo (blob) */
 async function compartilhar() {
-  const shareData = {
-    title: 'Tabela de Preços · Quintas da Mata',
-    text: SHARE_TEXT,
-    url: PDF_FIXO_URL
-  };
-  if (navigator.share && navigator.canShare && navigator.canShare({ url: PDF_FIXO_URL })) {
-    try {
-      await navigator.share(shareData);
-      showToast('✅ Compartilhado!');
-    } catch (e) {
-      if (e.name !== 'AbortError') fallbackCopy();
+  showToast('⏳ Carregando PDF…', 10000);
+
+  let file = null;
+
+  /* ── 1. Tenta fetch com CORS (necessário para ler o blob) ── */
+  try {
+    const resp = await fetch(PDF_FIXO_URL, { mode: 'cors', cache: 'force-cache' });
+    if (resp.ok) {
+      const blob = await resp.blob();
+      file = new File([blob], PDF_NOME, { type: 'application/pdf' });
     }
-  } else {
-    fallbackCopy();
+  } catch (_) { /* CORS bloqueado no servidor — cai no fallback */ }
+
+  /* ── 2. Compartilhamento com arquivo (mobile: WhatsApp recebe PDF real) ── */
+  if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], text: SHARE_TEXT });
+      showToast('✅ PDF compartilhado!');
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') { showToast(''); return; }
+      /* share com files falhou — tenta fallback com URL */
+    }
   }
+
+  /* ── 3. Fallback: share só com URL + texto (WhatsApp exibe preview do link) ── */
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: PDF_NOME, text: SHARE_TEXT, url: PDF_FIXO_URL });
+      showToast('✅ Compartilhado via link!');
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') { showToast(''); return; }
+    }
+  }
+
+  /* ── 4. Desktop fallback: copia texto + link para clipboard ── */
+  fallbackCopy();
 }
 
 function fallbackCopy() {
