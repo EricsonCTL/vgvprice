@@ -570,31 +570,29 @@ body {
 /* ── PRINT ── */
 @page {
   size: A4 landscape;
-  margin: 8mm 8mm 8mm 8mm;
+  margin: 8mm;
 }
 @media print {
-  html, body { margin: 0 !important; padding: 0 !important; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
   .header, .mobile-actions, .hero-banner, .obs-card, .site-footer { display: none !important; }
-  body { background: #fff; }
-  .main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
-  .scroll-wrap { overflow: visible !important; }
-  .tp-table { min-width: unset; font-size: 7.5px; width: 100%; }
-  .tp-table thead tr.tp-th-top th { font-size: 7px; padding: .35rem .4rem; }
-  .tp-table thead tr.tp-th-sub th  { font-size: 6.5px; padding: .3rem .4rem; }
-  .tp-table tbody td { padding: .35rem .4rem; }
+  .main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; width: 100% !important; }
+  .table-card { box-shadow: none; border-radius: 0; border: none; margin: 0; width: 100%; }
+  .table-card-header { padding: .4rem .5rem; }
+  .scroll-wrap { overflow: visible !important; width: 100% !important; }
+  .tp-table { min-width: unset !important; width: 100% !important; font-size: 7.5px; table-layout: auto; }
+  .tp-table thead { position: static !important; top: 0 !important; }
+  .tp-table thead tr.tp-th-top th { font-size: 7px; padding: .3rem .35rem; }
+  .tp-table thead tr.tp-th-sub th  { font-size: 6.5px; padding: .25rem .35rem; }
+  .tp-table tbody td { padding: .3rem .35rem; }
   .tp-table th.sticky-col, .tp-table td.sticky-col,
   .tp-table th.sticky-col2, .tp-table td.sticky-col2 { position: static !important; }
-  .table-card { box-shadow: none; border-radius: 0; border: none; margin: 0; }
-  .table-card-header { padding: .4rem .6rem; }
-  .table-card-title { font-size: .8rem; }
-  .table-card-meta  { font-size: 10px; }
   .print-header {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0 .5rem;
+    padding: 0 0 .45rem;
     border-bottom: 2px solid #2d5a1b;
-    margin-bottom: .5rem;
+    margin-bottom: .45rem;
   }
   .print-header .ph-quintas { height: 40px; width: auto; filter: none; }
   .print-header .ph-lancar  { height: 28px; width: auto; filter: none; }
