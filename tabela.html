@@ -555,7 +555,8 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,.2);
 }
 
-.fab:hover::before {
+.fab:hover::before,
+.fab.tooltip-auto::before {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
@@ -970,6 +971,34 @@ function fallbackCopy() {
 
 document.getElementById('btn-gerar-pdf').addEventListener('click', gerarPDF);
 document.getElementById('btn-compartilhar').addEventListener('click', compartilhar);
+
+/* ── TOOLTIP AUTO-REVEAL após 2s do carregamento ── */
+(function autoTooltip() {
+  const fabPdf   = document.getElementById('btn-gerar-pdf');
+  const fabShare = document.getElementById('btn-compartilhar');
+  const SHOW_MS  = 1800; // tempo que fica visível
+  const GAP_MS   = 400;  // pausa entre os dois
+
+  function addClass(el, cls)  { el.classList.add(cls); }
+  function remClass(el, cls)  { el.classList.remove(cls); }
+
+  setTimeout(() => {
+    // 1. Abre o tooltip do PDF
+    addClass(fabPdf, 'tooltip-auto');
+    setTimeout(() => {
+      // 2. Fecha o PDF
+      remClass(fabPdf, 'tooltip-auto');
+      setTimeout(() => {
+        // 3. Abre o Compartilhar
+        addClass(fabShare, 'tooltip-auto');
+        setTimeout(() => {
+          // 4. Fecha o Compartilhar
+          remClass(fabShare, 'tooltip-auto');
+        }, SHOW_MS);
+      }, GAP_MS);
+    }, SHOW_MS);
+  }, 2000);
+})();
 </script>
 </body>
 </html>
