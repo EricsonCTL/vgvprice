@@ -97,9 +97,16 @@ function clearSession() {
 }
 
 function getBasePath() {
-  return location.pathname.endsWith('/')
-    ? location.pathname
-    : location.pathname.replace(/[^/]*$/, '');
+  if (location.pathname.endsWith('/')) {
+    return location.pathname;
+  }
+
+  const lastSegment = location.pathname.split('/').pop();
+  if (lastSegment && lastSegment.includes('.')) {
+    return location.pathname.replace(/[^/]*$/, '');
+  }
+
+  return location.pathname + '/';
 }
 
 function pageUrl(filename) {
