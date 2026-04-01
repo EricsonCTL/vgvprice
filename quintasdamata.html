@@ -884,6 +884,16 @@ function brl(v) {
   return 'R$\u00a0' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
+function normalizeStatus(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .toUpperCase();
+}
+
 function buildRows() {
   const tbody = document.getElementById('tp-tbody');
   if (!tbody) return;
@@ -920,7 +930,6 @@ function buildRows() {
 }
 
 initPage();
-loadSheetData();
 
 /* ── SHEET + SESSION LOGIC ── */
 const SHEET_BASE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_et0B2equYxZT7QXjReBl0VMJ1qx5clTNbnoXzULo1pKnWOkGh6wv3nAlgz9p-8gyKGDoVSXKEVSU/pub?gid=872949406&single=true&output=csv';
@@ -973,22 +982,24 @@ function parseSheetRows(rows) {
     console.warn('Cabeçalho da planilha não encontrado. Verifique se a estrutura da planilha mudou ou se a exportação CSV está correta.');
   }
   const dataRows = headerIndex >= 0 ? rows.slice(headerIndex + 1) : rows;
-  return dataRows.map((r) => ({
-    quadra: String(r[1] || '').trim(),
-    situacao: normalizeStatus(r[2]),
-    lote: String(r[3] || '').trim(),
-    m2: parseNumeric(r[4]),
-    valor: parseNumeric(r[6]),
-    entrada: parseNumeric(r[7]),
-    p12: parseNumeric(r[8]),
-    p24: parseNumeric(r[9]),
-    p36: parseNumeric(r[10]),
-    p36i: parseNumeric(r[11]),
-    p36i_inter: parseNumeric(r[12]),
-    p60: parseNumeric(r[15]),
-    p60i: parseNumeric(r[16]),
-    p60i_inter: parseNumeric(r[17])
-  })).filter((row) => row.situacao === 'DISPONIVEL');
+  return dataRows
+    .map((r) => ({
+      quadra: String(r[1] || '').trim(),
+      situacao: normalizeStatus(r[2]),
+      lote: String(r[3] || '').trim(),
+      m2: parseNumeric(r[4]),
+      valor: parseNumeric(r[6]),
+      entrada: parseNumeric(r[7]),
+      p12: parseNumeric(r[8]),
+      p24: parseNumeric(r[9]),
+      p36: parseNumeric(r[10]),
+      p36i: parseNumeric(r[11]),
+      p36i_inter: parseNumeric(r[12]),
+      p60: parseNumeric(r[15]),
+      p60i: parseNumeric(r[16]),
+      p60i_inter: parseNumeric(r[17])
+    }))
+    .filter((row) => row.quadra && row.lote && row.situacao === 'DISPONIVEL');
 }
 
 function updateSummary(rows) {
