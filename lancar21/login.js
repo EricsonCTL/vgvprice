@@ -96,12 +96,26 @@ function clearSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+function getBasePath() {
+  return location.pathname.endsWith('/')
+    ? location.pathname
+    : location.pathname.replace(/[^/]*$/, '');
+}
+
+function pageUrl(filename) {
+  const basePath = getBasePath();
+  if (location.protocol.startsWith('http')) {
+    return location.origin + basePath + filename;
+  }
+  return basePath + filename;
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
   const form = document.getElementById('loginForm');
   const errorDiv = document.getElementById('loginError');
 
   if (await verifySession()) {
-    window.location.href = './quintasdamata.html';
+    window.location.href = pageUrl('quintasdamata.html');
     return;
   }
 
@@ -132,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (valid) {
       await createSession(usuario);
-      window.location.href = './quintasdamata.html';
+      window.location.href = pageUrl('quintasdamata.html');
       return;
     }
 

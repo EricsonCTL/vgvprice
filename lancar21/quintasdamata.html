@@ -949,7 +949,7 @@ function clearSession() {
 
 function redirectToLogin() {
   clearSession();
-  window.location.replace('./index.html');
+  window.location.replace(pageUrl('index.html'));
 }
 
 function parseCsv(text) {
@@ -1047,6 +1047,20 @@ async function loadSheetData() {
   updateSummary(tableRows);
 }
 
+function getBasePath() {
+  return location.pathname.endsWith('/')
+    ? location.pathname
+    : location.pathname.replace(/[^/]*$/, '');
+}
+
+function pageUrl(filename) {
+  const basePath = getBasePath();
+  if (location.protocol.startsWith('http')) {
+    return location.origin + basePath + filename;
+  }
+  return basePath + filename;
+}
+
 async function initPage() {
   if (!(await verifySession())) {
     redirectToLogin();
@@ -1060,7 +1074,7 @@ async function initPage() {
 
 /* ── FAB LOGIC ── */
 const PDF_NOME = 'Tabela de Preços · Quintas da Mata.pdf';
-const PDF_FIXO_URL = location.origin + location.pathname.replace(/[^/]*$/, '') + encodeURIComponent(PDF_NOME);
+const PDF_FIXO_URL = pageUrl(encodeURIComponent(PDF_NOME));
 const SHARE_TEXT = `Segue a tabela do Quintas das Matas.\n\nPara reservas, confirme conosco a disponibilidade e as condições, sujeitas a alterações sem aviso prévio.`;
 
 function showToast(msg, duration = 2800) {
