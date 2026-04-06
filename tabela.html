@@ -910,55 +910,11 @@ function gerarPDF() {
   }, 200);
 }
 
-/* BOTÃO COMPARTILHAR — envia o PDF fixo do servidor como arquivo (blob) */
-async function compartilhar() {
-  showToast('⏳ Carregando PDF…', 10000);
-
-  let file = null;
-
-  /* ── 1. Tenta fetch com CORS (necessário para ler o blob) ── */
-  try {
-    const resp = await fetch(PDF_FIXO_URL, { mode: 'cors', cache: 'force-cache' });
-    if (resp.ok) {
-      const blob = await resp.blob();
-      file = new File([blob], PDF_NOME, { type: 'application/pdf' });
-    }
-  } catch (_) { /* CORS bloqueado no servidor — cai no fallback */ }
-
-  /* ── 2. Compartilhamento com arquivo (mobile: WhatsApp recebe PDF real) ── */
-  if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      /* Alguns browsers aceitam text junto com files, outros não — tenta com title+text primeiro */
-      await navigator.share({ files: [file], title: PDF_NOME, text: SHARE_TEXT });
-      showToast('✅ PDF compartilhado!');
-      return;
-    } catch (e) {
-      if (e.name === 'AbortError') { showToast(''); return; }
-      /* share com files+text falhou — tenta só com arquivo (sem text) */
-      try {
-        await navigator.share({ files: [file], title: PDF_NOME });
-        showToast('✅ PDF compartilhado!');
-        return;
-      } catch (e2) {
-        if (e2.name === 'AbortError') { showToast(''); return; }
-        /* cai no fallback com URL + texto */
-      }
-    }
-  }
-
-  /* ── 3. Fallback: share com URL + texto (WhatsApp exibe preview do link) ── */
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: PDF_NOME, text: SHARE_TEXT, url: PDF_FIXO_URL });
-      showToast('✅ Compartilhado via link!');
-      return;
-    } catch (e) {
-      if (e.name === 'AbortError') { showToast(''); return; }
-    }
-  }
-
-  /* ── 4. Desktop fallback: copia texto + link para clipboard ── */
-  fallbackCopy();
+/* BOTÃO COMPARTILHAR — abre direto no WhatsApp (app instalado ou navegador) */
+function compartilhar() {
+  const mensagem = SHARE_TEXT + '\n\n' + PDF_FIXO_URL;
+  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(mensagem);
+  window.open(waUrl, '_blank');
 }
 
 function fallbackCopy() {
