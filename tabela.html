@@ -910,42 +910,33 @@ function gerarPDF() {
   }, 200);
 }
 
-/* BOTÃO COMPARTILHAR */
+/* BOTÃO COMPARTILHAR — envia PDF como arquivo (mobile) ou abre WhatsApp Web (desktop) */
 async function compartilhar() {
+  showToast('⏳ Carregando PDF…', 10000);
 
-  /* ── MOBILE: tenta enviar o PDF como arquivo via navigator.share ── */
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isMobile && navigator.share && navigator.canShare) {
-    showToast('⏳ Carregando PDF…', 10000);
-    let file = null;
-    try {
-      const resp = await fetch(PDF_FIXO_URL, { cache: 'force-cache' });
-      if (resp.ok) {
-        const blob = await resp.blob();
-        file = new File([blob], PDF_NOME, { type: 'application/pdf' });
-      }
-    } catch (_) {}
-
-    if (file && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: PDF_NOME, text: SHARE_TEXT });
-        showToast('✅ PDF compartilhado!');
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') { showToast(''); return; }
-      }
-      /* se falhou sem arquivo, tenta só com texto */
-      try {
-        await navigator.share({ files: [file], title: PDF_NOME });
-        showToast('✅ PDF compartilhado!');
-        return;
-      } catch (e2) {
-        if (e2.name === 'AbortError') { showToast(''); return; }
-      }
+  /* 1. Tenta baixar o PDF do servidor */
+  let file = null;
+  try {
+    const resp = await fetch(PDF_FIXO_URL, { mode: 'cors', cache: 'force-cache' });
+    if (resp.ok) {
+      const blob = await resp.blob();
+      file = new File([blob], PDF_NOME, { type: 'application/pdf' });
     }
+  } catch (_) {}
 
-    /* fallback mobile: share só com texto + URL */
+  /* 2. Mobile com suporte a share de arquivos: envia PDF + texto */
+  if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: PDF_NOME, text: SHARE_TEXT });
+      showToast('✅ PDF compartilhado!');
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') { showToast(''); return; }
+    }
+  }
+
+  /* 3. Fallback: share só com texto (sem arquivo) */
+  if (navigator.share) {
     try {
       await navigator.share({ title: PDF_NOME, text: SHARE_TEXT });
       showToast('✅ Compartilhado!');
@@ -955,7 +946,7 @@ async function compartilhar() {
     }
   }
 
-  /* ── DESKTOP: abre WhatsApp Web só com o texto (vendedor anexa o PDF) ── */
+  /* 4. Desktop: abre WhatsApp Web com o texto */
   const waUrl = 'https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT);
   window.open(waUrl, '_blank');
   showToast('📎 Anexe o PDF manualmente no WhatsApp');
