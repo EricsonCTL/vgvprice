@@ -890,7 +890,7 @@ buildRows();
 
 /* ── FAB LOGIC ── */
 const PDF_NOME = 'Tabela de Preços · Quintas da Mata.pdf';
-const PDF_FIXO_URL = location.origin + location.pathname.replace(/[^/]*$/, '') + encodeURIComponent(PDF_NOME);
+const PDF_FIXO_URL = 'https://vgvprice.com/Tabela%20de%20Pre%C3%A7os%20%C2%B7%20Quintas%20da%20Mata.pdf';
 const SHARE_TEXT = `Segue a tabela do Quintas das Matas.\n\nPara reservas, confirme conosco a disponibilidade e as condições, sujeitas a alterações sem aviso prévio.`;
 
 function showToast(msg, duration = 2800) {
@@ -910,11 +910,55 @@ function gerarPDF() {
   }, 200);
 }
 
-/* BOTÃO COMPARTILHAR — abre direto no WhatsApp (app instalado ou navegador) */
-function compartilhar() {
-  const mensagem = SHARE_TEXT + '\n\n' + PDF_FIXO_URL;
-  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(mensagem);
+/* BOTÃO COMPARTILHAR */
+async function compartilhar() {
+
+  /* ── MOBILE: tenta enviar o PDF como arquivo via navigator.share ── */
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isMobile && navigator.share && navigator.canShare) {
+    showToast('⏳ Carregando PDF…', 10000);
+    let file = null;
+    try {
+      const resp = await fetch(PDF_FIXO_URL, { cache: 'force-cache' });
+      if (resp.ok) {
+        const blob = await resp.blob();
+        file = new File([blob], PDF_NOME, { type: 'application/pdf' });
+      }
+    } catch (_) {}
+
+    if (file && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: PDF_NOME, text: SHARE_TEXT });
+        showToast('✅ PDF compartilhado!');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') { showToast(''); return; }
+      }
+      /* se falhou sem arquivo, tenta só com texto */
+      try {
+        await navigator.share({ files: [file], title: PDF_NOME });
+        showToast('✅ PDF compartilhado!');
+        return;
+      } catch (e2) {
+        if (e2.name === 'AbortError') { showToast(''); return; }
+      }
+    }
+
+    /* fallback mobile: share só com texto + URL */
+    try {
+      await navigator.share({ title: PDF_NOME, text: SHARE_TEXT });
+      showToast('✅ Compartilhado!');
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') { showToast(''); return; }
+    }
+  }
+
+  /* ── DESKTOP: abre WhatsApp Web só com o texto (vendedor anexa o PDF) ── */
+  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT);
   window.open(waUrl, '_blank');
+  showToast('📎 Anexe o PDF manualmente no WhatsApp');
 }
 
 function fallbackCopy() {
